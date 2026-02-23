@@ -148,5 +148,5 @@ Reproducible environment defined in `requirements.txt`.
 
 ## Author
 
-Data Science & Football Performance Analytics Portfolio Project
+Manuel Pérez Bañuls - Data Science & Football Performance Analytics Portfolio Project
 
