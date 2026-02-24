@@ -1,0 +1,26 @@
+# Environments
+.venv/
+
+# Data / lakehouse (NO subir)
+lakehouse/
+data/
+
+# DuckDB / Parquet artifacts
+*.duckdb
+*.parquet
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+
+# Jupyter
+.ipynb_checkpoints/
+
+# OS / editors
+.DS_Store
+Thumbs.db
+.vscode/
+
+# Logs
+*.log
