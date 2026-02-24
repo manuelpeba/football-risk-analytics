@@ -1,21 +1,4 @@
-# Environments
-.venv/
-
-# Data / lakehouse (NO subir)
-lakehouse/
-data/
-
-# DuckDB / Parquet artifacts
-*.duckdb
-*.parquet
-
-# Python cache
-__pycache__/
-*.pyc
-*.pyo
-
-# Jupyter
-.ipynb_checkpoints/
+  GNU nano 8.7                       .gitignore
 
 # OS / editors
 .DS_Store
@@ -24,3 +7,15 @@ Thumbs.db
 
 # Logs
 *.log
+=======
+# Jupyter checkpoints
+.ipynb_checkpoints/
+
+# VS Code
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+>>>>>>> 5703932a84bd001fe7a7a2a33380dfcf4d27f251
+
