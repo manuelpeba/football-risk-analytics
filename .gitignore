@@ -12,7 +12,7 @@ Thumbs.db
 
 # Logs
 *.log
-=======
+
 # Jupyter checkpoints
 .ipynb_checkpoints/
 
@@ -23,4 +23,9 @@ Thumbs.db
 .DS_Store
 Thumbs.db
 >>>>>>> 5703932a84bd001fe7a7a2a33380dfcf4d27f251
+
+# Virtual environments
+.venv/
+venv/
+env/
 
