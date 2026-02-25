@@ -1,152 +1,242 @@
-# Football Injury Risk Modelling using Public Event Data
+# Football Risk Analytics
 
-## Project Overview
+### A Workload-Based Injury Risk Proxy Model for Professional Football
 
-This project presents a reproducible injury-risk modelling framework built using publicly available football event data (StatsBomb Open Data).  
+This project develops a data-driven framework to estimate short-term elevated workload risk in professional football players using match-derived workload metrics.
 
-The objective is to reconstruct competitive workload exposure and evaluate its relationship with short-term injury risk using machine learning techniques.
+The objective is not to predict medical injuries directly, but to construct a robust, operational risk proxy that can support performance and medical decision-making under realistic capacity constraints.
 
-This project is designed to demonstrate:
+This repository focuses on methodological rigor:
 
-- End-to-end data pipeline construction
-- True match minute reconstruction from raw event data
-- Workload feature engineering (7/14/28-day rolling windows)
-- ACWR computation
-- Temporal validation strategy (leakage-aware)
-- Baseline and non-linear modelling approaches
-- Performance interpretation from both Data Science and Performance perspectives
+- Chronological validation
+- Rolling stability testing
+- Feature ablation experiments
+- Operational policy simulation
 
-This repository is intended as a professional portfolio project bridging Data Science and Football Performance Analytics.
+The project is structured to reflect a real-world sports analytics workflow, prioritizing methodological rigor over inflated performance metrics.
 
+Key Highlights:
 
----
-
-## Data Source
-
-- StatsBomb Open Data (not included in this repository)
-- Competitive match event data only
-- No access to internal club training or GPS data
-
-Because public datasets do not include training load, internal load, or medical records, this project models injury risk using competitive workload as a proxy.
-
-The `data/` and `lakehouse/` folders are excluded from version control due to size.
-
+- Time-aware validation
+- Operational threshold simulation
+- Feature ablation experiments
+- Interpretability-driven model choice
 
 ---
 
-## Methodology
+## 1. Project motivation
 
-### 1. True Minutes Reconstruction
+In elite football environments:
 
-Starting XI and substitution events are parsed from raw event data to reconstruct actual minutes played per match.
+- Player overload leads to performance decline and injury risk.
+- Medical staff operate under limited review capacity.
+- Risk assessment must be interpretable and operationally deployable.
 
-This avoids relying on simplified or incomplete minute assumptions.
+This project simulates a realistic scenario where a club wants to:
 
-### 2. Workload Feature Engineering
-
-Rolling workload features are computed:
-
-- `minutes_last_7d`
-- `minutes_last_14d`
-- `minutes_last_28d`
-- Acute:Chronic Workload Ratio (ACWR)
-
-These represent external competitive load only.
-
-### 3. Target Definition
-
-`high_risk_next` is defined as a proxy indicator based on workload-derived thresholds.
-
-This is not a clinical injury label but a workload-based risk indicator.
-
-### 4. Temporal Split Strategy
-
-To avoid data leakage:
-
-- Data is split chronologically
-- The most recent 20% is used as test set
-- No random shuffling is performed
-
-This simulates real-world forward prediction.
-
+- Rank players by short-term risk
+- Flag the top X% for review
+- Monitor temporal stability of the model
 
 ---
 
-## Modelling
+## 2. Data architecture
 
-### Baseline Model
+Data stored in DuckDB lakehouse format.
 
-Logistic Regression (with feature scaling)
+Primary table used for modeling: `player_dataset_predictive_v2`
 
-Evaluation metrics:
 
+Contains:
+
+- Rolling workload features (7d / 14d / 28d)
+- Acute-Chronic Workload Ratio (ACWR)
+- Volatility metrics
+- Season cumulative load
+- Short-term workload deltas
+- Target: `high_risk_next`
+
+All splits are chronological to prevent leakage.
+
+---
+
+## 3. Modeling framework
+
+### Baseline model
+
+- Logistic Regression
+- Median imputation
+- Standard scaling
+- L2 regularization
+
+Why logistic regression?
+
+- Interpretability
+- Stable deployment
+- Transparent coefficient interpretation
+
+---
+
+## 4. Evaluation strategy
+
+Two complementary validation approaches:
+
+### A) Chronological hold-out
+
+Single forward split to simulate deployment.
+
+Metrics:
 - ROC-AUC
-- Precision-Recall AUC
-- Confusion Matrix
-- Coefficient interpretation
+- PR-AUC
+- Brier Score
+- Precision/Recall under 10% capacity
 
-### Model Comparison (Planned / Extended)
+### B) Rolling backtest (time-aware)
 
-- HistGradientBoosting
-- Tree-based models
-- Feature importance analysis
-- Calibration analysis
+Weekly block rolling validation to evaluate:
 
-The objective is to balance predictive performance with interpretability.
+- Temporal robustness
+- Stability across competitive periods
+- Variance of predictive performance
+
+This prevents inflated performance from static splits.
+
+---
+
+## 5. Key results
+
+### Chronological test split
+
+- ROC-AUC ≈ 0.77
+- PR-AUC ≈ 0.70
+- Brier ≈ 0.20
+- Precision @10% capacity ≈ 0.75
+- Recall @10% capacity ≈ 0.15
+
+Interpretation:
+The model effectively ranks elevated risk cases while remaining conservative under operational constraints. Results are reported under strictly chronological splits to avoid temporal leakage.
+
+---
+
+### Rolling backtest
+
+- ROC-AUC mean ≈ 0.76
+- Moderate temporal variance observed
+- Calibration remained within acceptable range across folds
+
+Feature ablation experiments confirmed:
+
+- Interaction ratios contribute predictive signal
+- Instability is not driven by overfitting
+- Temporal variability likely reflects non-stationary workload dynamics
+
+---
+
+## 6. Operational policy simulation
+
+Thresholds are selected via training quantiles to simulate limited medical review capacity.
+
+At 10% alert capacity:
+
+- High precision
+- Moderate recall
+- Controlled alert volume
+
+This mirrors real-world decision trade-offs.
+
+---
+
+## 7. Model robustness experiments
+
+Conducted:
+
+- Regularization strength adjustment
+- Feature pruning (ratio removal)
+- Rolling validation stability testing
+
+Findings:
+
+- Regularization had limited impact on variance
+- Removing workload ratios degraded performance
+- Predictive signal arises from multi-scale workload interactions
+
+---
+
+## 8. Repository structure
+
+```bash
+football-risk-analytics/
+│
+├── notebooks/
+│   ├── 01_eda_risk_scouting.ipynb
+│   ├── 02_model_high_risk_baseline.ipynb
+│   ├── 03_model_comparison_logit_vs_hgb.ipynb
+│   ├── 04_operational_thresholding.ipynb
+│   └── 05_rolling_backtest_and_monitoring.ipynb
+│
+├── lakehouse/
+│   └── analytics.duckdb
+│
+├── requirements.txt
+├── .gitignore
+└── README.md
+```
+
+### Notebook overview
+
+**01 — EDA & Risk scouting**  
+Exploratory analysis of workload distribution, temporal dynamics and initial proxy definition.
+
+**02 — Baseline model**  
+Logistic regression with expanded workload features and chronological split evaluation.
+
+**03 — Model comparison**  
+Logit vs HistGradientBoosting comparison under consistent evaluation framework.
+
+**04 — Operational thresholding**  
+Simulation of medical review capacity constraints using quantile-based thresholds.
+
+**05 — Rolling backtest & Monitoring**  
+Time-aware validation to assess temporal stability and deployment robustness.
 
 
 ---
 
-## Key Findings
+## 9. Limitations
 
-- Short-term competitive workload shows measurable association with next-match risk proxy.
-- Logistic baseline achieves ROC-AUC above random classification.
-- Precision-Recall performance indicates meaningful predictive signal relative to class prevalence.
-- Load effects appear non-linear, suggesting benefit from tree-based models.
-
-
----
-
-## Limitations
-
-This project does not include:
-
-- GPS-derived external load metrics (HSR, sprint distance, accelerations)
-- Internal load metrics (HRV, sRPE, fatigue scores)
-- Clinical injury records
-
-In professional environments, these data sources would be essential for robust injury prediction models.
-
-Therefore, this project demonstrates the modelling framework rather than a medically complete injury prediction system.
-
+- Risk proxy, not confirmed medical injuries.
+- No GPS or training load data.
+- No biomechanical inputs.
+- Temporal non-stationarity affects stability.
 
 ---
 
-## Future Work
+## 10. Future improvements
 
-- Integration of training load metrics
-- Player-specific baseline modelling
-- Survival analysis (time-to-injury modelling)
-- Walk-forward cross-validation
-- Deployment as a club-facing monitoring tool
-
+- Hybrid model: workload + performance metrics
+- Season-specific calibration
+- Bayesian temporal smoothing
+- Real-time monitoring dashboard
 
 ---
 
-## Technical Stack
+## 11. Professional context
 
-- Python
-- DuckDB
-- Pandas / Polars
-- Scikit-learn
-- Matplotlib
+This project demonstrates:
 
-Reproducible environment defined in `requirements.txt`.
+- Time-aware model validation
+- Feature ablation testing
+- Operational constraint simulation
+- Interpretability-focused modeling
+- Governance-oriented experimentation
 
+It reflects a production-oriented analytics workflow aligned with professional football performance environments and modern model governance standards, emphasizing robustness over inflated headline metrics.
 
 ---
 
 ## Author
 
-Manuel Pérez Bañuls - Data Science & Football Performance Analytics Portfolio Project
+Manuel Pérez Bañuls  
+Data Science & Football Performance Analytics  
+Portfolio Project
 
