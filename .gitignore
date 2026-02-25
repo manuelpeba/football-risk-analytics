@@ -1,4 +1,9 @@
-  GNU nano 8.7                       .gitignore
+# Local data / lakehouse (do not version)
+data/
+lakehouse/
+*.duckdb
+*.db
+*.parquet
 
 # OS / editors
 .DS_Store
