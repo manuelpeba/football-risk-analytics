@@ -1,3 +1,5 @@
+PYTHONPATH=src
+
 setup:
 	pip install -r requirements.txt
 
