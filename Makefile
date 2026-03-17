@@ -1,7 +1,15 @@
 PYTHONPATH=src
 
+# =========================
+# Environment
+# =========================
+
 setup:
 	pip install -r requirements.txt
+
+# =========================
+# Data Pipeline
+# =========================
 
 build-data:
 	python scripts/01_build_manifest.py
@@ -14,8 +22,16 @@ build-data:
 	python scripts/08_build_player_dataset_final.py
 	python scripts/09_build_player_dataset_predictive.py
 
+# =========================
+# Modeling
+# =========================
+
 train:
 	python scripts/20_train_baseline.py
+
+# =========================
+# Inference
+# =========================
 
 score:
 	python scripts/10_score_batch.py
@@ -23,7 +39,26 @@ score:
 rank:
 	python scripts/11_rank_players.py
 
+alerts:
+	python scripts/12_generate_alerts.py
+
+# =========================
+# Utilities
+# =========================
+
 check-db:
 	python scripts/check_db.py
 
-all: build-data train score rank
+# =========================
+# Full Pipeline
+# =========================
+
+all: build-data train score rank alerts
+
+# =========================
+# Cleanup
+# =========================
+
+clean:
+	rm -rf outputs/predictions/*
+	rm -rf outputs/alerts/*
