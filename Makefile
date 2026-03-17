@@ -14,7 +14,16 @@ build-data:
 	python scripts/08_build_player_dataset_final.py
 	python scripts/09_build_player_dataset_predictive.py
 
+train:
+	python scripts/20_train_baseline.py
+
+score:
+	python scripts/10_score_batch.py
+
+rank:
+	python scripts/11_rank_players.py
+
 check-db:
 	python scripts/check_db.py
 
-all: build-data
+all: build-data train score rank
