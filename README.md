@@ -1,186 +1,83 @@
-# Football Risk Analytics
+# ⚽ Football Risk Analytics
 
-### A Governance-Oriented Workload Risk Monitoring Framework for Professional Football
+### Governance-Oriented Workload Risk Monitoring for Professional Football
 
-This project develops a governance-oriented risk monitoring framework to estimate short-term elevated workload exposure in professional football.
-
-Rather than predicting medical injuries directly, the objective is to construct an interpretable, capacity-aware risk proxy that supports performance and medical staff under realistic operational constraints.
-
-The framework emphasizes temporal robustness, calibration stability, and controlled alert generation rather than maximized headline accuracy.
-
-The repository reflects a production-style sports analytics workflow, prioritizing robustness, interpretability, and governance over inflated performance metrics.
+[![Python](https://img.shields.io/badge/Python-3.10-blue)]()
+[![DuckDB](https://img.shields.io/badge/Database-DuckDB-orange)]()
+[![Status](https://img.shields.io/badge/Status-Analytical%20Prototype-green)]()
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 ---
 
-## Key Highlights
+## 📌 Overview
 
-- Strict chronological validation
-- Four-season walk-forward rolling evaluation
-- Operational threshold simulation under fixed capacity (10%)
-- Feature ablation experiments
-- Score drift and policy drift monitoring
-- Calibration tracking (ECE, Brier)
-- Interpretability-driven model choice
+This project develops a **governance-oriented workload risk monitoring framework** for professional football.
 
----
+Instead of predicting injuries directly, the system estimates **short-term elevated workload exposure** and ranks players under **realistic operational constraints**.
 
-## 1. Project Motivation
-
-In elite football environments:
-
-- Player overload contributes to performance decline and injury exposure.
-- Medical and performance staff operate under limited review capacity.
-- Risk assessment must be interpretable, stable, and operationally deployable.
-
-This project simulates a realistic scenario where a club wants to:
-
-- Rank players by short-term workload risk
-- Flag the top X% for review
-- Monitor model stability across competitive phases
-- Detect calibration and distribution drift over time
-
-The focus is on decision-support robustness rather than injury prediction claims.
-
----
-
-## 2. Data Architecture
-
-Data is stored in a local DuckDB lakehouse format.
-
-Primary modeling table: `player_dataset_predictive_v2`
-
-Features include:
-
-- Rolling workload metrics (7d / 14d / 28d)
-- Acute-Chronic Workload Ratio (ACWR)
-- Workload volatility measures
-- Short-term deltas and ratios
-- Season cumulative exposure
-- Multi-scale workload interactions
-- Target proxy: `high_risk_next`
-
-All splits are strictly chronological to prevent temporal leakage.
-
----
-
-## 3. Modeling Framework
-
-### Baseline Model
-
-- Logistic Regression
-- Median imputation
-- Standard scaling
-- L2 regularization
-
-Why logistic regression?
+The focus is on:
 
 - Interpretability
-- Stable deployment characteristics
-- Transparent coefficient structure
-- Reduced variance under temporal shift
-
-A HistGradientBoosting benchmark model is included for robustness comparison.
+- Temporal robustness
+- Calibration stability
+- Operational decision support
 
 ---
 
-## 4. Evaluation Strategy
+## 🚀 Key Results
 
-Two complementary validation approaches are used.
+### Chronological Hold-out
 
-### A) Chronological Hold-Out
+| Metric | Value |
+|------|------|
+| ROC-AUC | ~0.77 |
+| PR-AUC | ~0.70 |
+| Brier Score | ~0.20 |
+| Precision @10% | ~0.75 |
+| Recall @10% | ~0.15 |
 
-Single forward split simulating first deployment.
+### Rolling Backtest (4 Seasons)
 
-Metrics:
+| Metric | Mean |
+|------|------|
+| ROC-AUC | ~0.75 |
+| PR-AUC | ~0.79 |
+| Brier Score | ~0.19 |
+| ECE | ~0.18 |
 
-- ROC-AUC ≈ 0.77  
-- PR-AUC ≈ 0.70  
-- Brier ≈ 0.20  
-- Precision @10% capacity ≈ 0.75  
-- Recall @10% capacity ≈ 0.15  
+### Key Findings
 
-Interpretation:
-
-The model ranks elevated workload exposure effectively while remaining conservative under fixed review capacity.
-
----
-
-### B) Rolling Backtest (Four-Season Walk-Forward)
-
-A four-season rolling evaluation (22 monthly validation windows) simulates realistic deployment under non-stationary competitive dynamics.
-
-Mean performance across folds:
-
-- ROC-AUC ≈ 0.75  
-- PR-AUC ≈ 0.79  
-- Brier ≈ 0.19  
-- ECE ≈ 0.18  
-
-Findings:
-
-- Logistic regression demonstrated stronger temporal robustness than the gradient boosting benchmark.
-- Calibration remained stable across competitive phases.
-- Score distribution shifts (PSI often > 1) reflect structural workload volatility rather than model degradation.
-- Alert rate deviations illustrate operational drift under fixed-capacity constraints.
-
-The rolling framework prioritizes stability and monitoring signals over static performance reporting.
+- Logistic regression outperformed gradient boosting in **temporal stability**
+- Calibration remained stable across competitive phases
+- Score drift reflects **true workload volatility**, not model failure
+- Fixed-capacity policy introduces **realistic operational trade-offs**
 
 ---
 
-## 5. Operational Policy Simulation
+## 🧠 Key Features
 
-Thresholds are selected via training quantiles to simulate limited medical review capacity.
-
-At 10% alert capacity:
-
-- High precision
-- Controlled alert volume
-- Moderate recall
-- Realistic test-period drift in alert rates
-
-This mirrors real-world decision trade-offs where review capacity is constrained.
+- ✅ Strict chronological validation (no leakage)
+- ✅ Multi-season rolling backtesting (walk-forward)
+- ✅ Capacity-constrained decision simulation (top 10%)
+- ✅ Calibration monitoring (ECE, Brier)
+- ✅ Drift detection (PSI, label shift)
+- ✅ Model robustness experiments
+- ✅ Interpretability-first modeling (Logistic Regression)
+- ✅ Production-style data pipeline (DuckDB lakehouse)
 
 ---
 
-## 6. Model Robustness Experiments
+## 🛠️ Key Technologies
 
-Conducted:
-
-- Regularization strength adjustments
-- Feature pruning (ratio removal)
-- Benchmark comparison (Logit vs HGB)
-- Rolling stability validation
-
-Findings:
-
-- Regularization had limited impact on temporal variance.
-- Removing multi-scale workload ratios degraded performance.
-- Predictive signal emerges from interaction between acute, chronic, and volatility features.
-- Logistic regression showed superior stability under temporal drift.
+- **Python**
+- **DuckDB** (analytical lakehouse)
+- **Polars / Pandas**
+- **Scikit-learn**
+- **SQL-based feature engineering**
 
 ---
 
-## 7. Model Governance Framework
-
-The monitoring layer includes:
-
-- Calibration tracking (ECE, Brier)
-- Score distribution drift (PSI)
-- Label prevalence drift
-- Alert policy drift under fixed 10% capacity
-- Control-chart style stability analysis
-
-Trigger-based actions:
-
-- Recalibration if calibration error increases materially
-- Retraining if ranking performance degrades persistently
-- Threshold review if alert capacity deviates beyond tolerance
-
-This governance structure mirrors model risk monitoring practices adapted to elite football performance environments.
-
----
-
-## 8. Repository Structure
+## 📂 Project Structure
 
 ```bash
 football-risk-analytics/
@@ -195,61 +92,185 @@ football-risk-analytics/
 ├── lakehouse/
 │   └── analytics.duckdb
 │
+├── scripts/
+│   ├── build_player_dataset_final.py
+│   ├── build_player_dataset_predictive.py
+│   ├── build_player_load_features.py
+│   ├── build_player_acwr.py
+│   └── ...
+│
 ├── requirements.txt
-├── .gitignore
 └── README.md
 ```
 ---
 
-## 9. Limitations
+# ⚙️ Pipeline Overview
 
-- Proxy risk indicator, not confirmed medical injuries.
+The project follows a lakehouse-style architecture:
 
-- No GPS or training load data.
+Raw Data (Events, Matches)
+        ↓
+Player Match Stats
+        ↓
+Feature Engineering (Load, Form, ACWR)
+        ↓
+Final Dataset (Predictive)
+        ↓
+Modeling
+        ↓
+Evaluation & Monitoring
 
-- No biomechanical inputs.
 
-- Workload dynamics are structurally non-stationary.
+### Core Tables
 
-- PSI thresholds from financial domains are not directly transferable to sport contexts.
-
----
-
-## 10. Future improvements
-
-- Hybrid model: workload + performance metrics
-
-- Season-specific recalibration policies
-
-- Bayesian temporal smoothing
-
-- Real-time monitoring dashboard
-
-- Automated retraining triggers
+* `player_match_stats`
+* `player_load_features`
+* `player_acwr`
+* `player_dataset_predictive`
 
 ---
 
-## 11. Professional context
+## ▶️ Quickstart
+
+```bash
+git clone https://github.com/yourusername/football-risk-analytics.git
+cd football-risk-analytics
+
+pip install -r requirements.txt
+```
+
+### Build datasets
+
+```bash
+python build_player_dataset_final.py
+python build_player_dataset_predictive.py
+```
+
+### Run notebooks
+
+```bash
+jupyter notebook
+```
+
+---
+
+## 🧪 Modeling Approach
+
+### Baseline Model
+
+* Logistic Regression
+* Standard scaling + median imputation
+* L2 regularization
+
+### Why Logistic Regression?
+
+* Stable under temporal drift
+* Interpretable coefficients
+* Lower variance vs complex models
+* Better governance properties
+
+### Benchmark
+
+* HistGradientBoosting (comparison only)
+
+---
+
+## 📊 Evaluation Strategy
+
+### 1. Chronological Split
+
+Simulates first deployment
+
+### 2. Rolling Walk-Forward
+
+* 4 seasons
+* 22 validation windows
+* Non-stationary environment simulation
+
+---
+
+## ⚠️ Operational Policy Simulation
+
+The system enforces **real-world constraints**:
+
+* Only top **10% highest-risk players** are flagged
+* Threshold selected on training data
+* Evaluated under test-time drift
+
+This mirrors **limited medical staff capacity**
+
+---
+
+## 🧭 Model Governance
+
+Monitoring framework includes:
+
+* Calibration tracking (ECE, Brier)
+* Score distribution drift (PSI)
+* Label prevalence monitoring
+* Alert rate deviation
+* Control-style stability tracking
+
+### Trigger-based actions
+
+* Recalibration
+* Retraining
+* Threshold adjustment
+
+---
+
+## ⚠️ Limitations
+
+* Proxy risk signal (not real injuries)
+* No GPS / training load data
+* No biomechanical inputs
+* High non-stationarity in workload dynamics
+
+---
+
+## 🔮 Future Improvements
+
+* Hybrid model (workload + performance)
+* Bayesian temporal smoothing
+* Dynamic thresholding policies
+* Real-time monitoring dashboard
+* Automated retraining pipeline
+
+---
+
+## 💼 Professional Context
 
 This project demonstrates:
 
-- Time-aware validation under non-stationarity
-
-- Operational decision support under capacity constraints
-
-- Calibration and drift monitoring
-
-- Model comparison with robustness prioritization
-
-- Governance-oriented evaluation rather than static benchmarking
-
-It reflects a deployment-ready analytics mindset aligned with elite football performance departments, where interpretability, stability, and operational feasibility outweigh marginal metric gains.
+* Time-aware validation under non-stationarity
+* Operational decision support under constraints
+* Calibration and drift monitoring
+* Model robustness vs performance trade-offs
+* Governance-first ML design
 
 ---
 
 ## Author
 
-Manuel Pérez Bañuls  
-Data Science & Football Performance Analytics  
-Portfolio Project
+**Manuel Pérez Bañuls**  
+Data Scientist | Football Analytics Enthusiast | Probabilistic Modeling
+
+Specializing in:
+- Sports analytics and forecasting
+- Probabilistic simulation systems
+- Machine learning for football prediction
+- Production-ready data pipelines
+
+**Connect & Collaborate**:
+- 📧 Email: [manuelpeba@gmail.com](mailto:manuelpeba@gmail.com)
+- 💼 LinkedIn: [manuel-perez-banuls](https://www.linkedin.com/in/manuel-perez-banuls/)
+- 🐙 GitHub: [manuelpeba](https://github.com/manuelpeba)
+
+Interested in discussing sports analytics, forecasting systems, or data-driven decision-making? Feel free to reach out!
+
+---
+
+# 📜 License
+
+MIT License
 
