@@ -50,6 +50,13 @@ check-db:
 	python scripts/check_db.py
 
 # =========================
+# Dashboard
+# =========================
+
+dashboard:
+	streamlit run app/app.py
+
+# =========================
 # Full Pipeline
 # =========================
 
