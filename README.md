@@ -1,6 +1,6 @@
 # ⚽ Football Risk Analytics
 
-### Governance-Oriented Workload Risk Monitoring for Professional Football
+### Building end-to-end decision systems for football: from data to actionable insights under real-world constraints.
 
 [![Python](https://img.shields.io/badge/Python-3.10-blue)]()
 [![DuckDB](https://img.shields.io/badge/Database-DuckDB-orange)]()
